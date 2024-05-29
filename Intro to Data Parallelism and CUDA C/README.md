@@ -1,16 +1,16 @@
 # Intro to Data Parallelism and CUDA C
 
-###### What is `CUDA C`?
+### What is `CUDA C`?
 
-###### Terminologies
+### Terminologies
 * Device refers to the GPU
 * Host refers to CPU
 
-###### Parallelism:
+#### Parallelism:
 * Task Parallelism
 * Data Parallelism
 
-###### CUDA C Functions & Concepts:
+### CUDA C Functions & Concepts:
 * `cudaMalloc()`: the function is called from host in order to allocate a piece of device global memory for an object
     ```cpp
     cudaError_t cudaMalloc(void** add, int size)
