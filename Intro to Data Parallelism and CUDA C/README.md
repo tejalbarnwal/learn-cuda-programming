@@ -10,7 +10,7 @@
 * Task Parallelism
 * Data Parallelism
 
-### CUDA C Functions & Concepts:
+### CUDA C API Functions & Concepts:
 * `cudaMalloc()`: the function is called from host in order to allocate a piece of device global memory for an object
     ```cpp
     cudaError_t cudaMalloc(void** add, int size)
@@ -48,11 +48,11 @@
     * Each thread in a block has a unique `threadIdx` value starting from 0, 1, 2, 3 ...
     * Each block in the grid has a unqiue `blockIdx` value starting from 0, 1, 2, 3...
     * Let say that each block contains 256 threads, then each thread can be globally identified by a global index i, where `i = blockIdx.x * blockDim.x + threadIdx.x`. Here, `blockDim.x = 256`.
-    * `threadIdx.x`, `blockDim.x` and `blockIdx.x` are keywords. There is also `.y` and `.z` which will be discussed later.
+    * `threadIdx.x`, `blockDim.x` and `blockIdx.x` are predefined variables. There is also `.y` and `.z` which will be discussed later.
     * The global index `i` can then be used in order to access device allocated variables.
     * Therefore, by launching a kernel with n or more threads, one can process vector of length `n`.
     * When the host code launches a kernel, it sets the grid and thread block dimensions via execution configuration parameters. The configuration parameters are given between the `<<<` and `>>>` before the traditional C function arguments. The first configuration parameter gives the number of thread blocks in the grid. The second specifies the number of threads in each thread block.
-* `CUDA C Qualifier Keywords`
+* `CUDA C Qualifier Keywords` to support heterogenous parallel computing:
     * `__device__`:
         * Indicated that the function being declared is a CUDA Device Function
         * Device function executes on a CUDA device and can only be called from a kernel function or another device function
@@ -68,8 +68,17 @@
         | `__device__`  | device            | device                 |
         | `__global__`  | device            | host                   |
         | `__host__`    | host              | host                   |
+    * If both `__host__` and `__device__` are used in a function declaration, the compiler generates two versions of the function, one for the device and one for the host. 
+    * If a function declaration does not have any CUDA extension keyword, the function defaults into a host function.
 
 ### Some notes related to compilation
 * Do `nvcc --list-gpu-arch` to get supported architectures by the driver to include in `CMakeLists.txt`
 * To compile your code in the traditional way, do `nvcc vectorAddCUDA.cu -o <object_file_name>`
 * To get default version of cpp in use: `g++ -dM -E -x c++  /dev/null | grep -F __cplusplus`
+
+### Notes related to implemenating matrix addition on CUDA
+* What is dynamic and fixed type array
+* Eigen Docs: https://web.archive.org/web/20231010014108/http://eigen.tuxfamily.org/index.php?title=Main_Page#Documentation
+* Can a dynamic eigen matrix be converted into fixed size matrix and then can cuda work?
+* How does passing 2D dynamic array passing work when we flatten it and pass http://www.trevorsimonton.com/blog/2016/11/16/transfer-2d-array-memory-to-cuda.html
+* Plus there are warnings on Eigen side, a lot of warnings!!!
