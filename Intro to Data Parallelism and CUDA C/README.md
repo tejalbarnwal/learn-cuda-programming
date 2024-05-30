@@ -68,3 +68,8 @@
         | `__device__`  | device            | device                 |
         | `__global__`  | device            | host                   |
         | `__host__`    | host              | host                   |
+
+### Some notes related to compilation
+* Do `nvcc --list-gpu-arch` to get supported architectures by the driver to include in `CMakeLists.txt`
+* To compile your code in the traditional way, do `nvcc vectorAddCUDA.cu -o <object_file_name>`
+* To get default version of cpp in use: `g++ -dM -E -x c++  /dev/null | grep -F __cplusplus`
