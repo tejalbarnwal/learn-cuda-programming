@@ -77,8 +77,11 @@
 * To get default version of cpp in use: `g++ -dM -E -x c++  /dev/null | grep -F __cplusplus`
 
 ### Notes related to implemenating matrix addition on CUDA
-* What is dynamic and fixed type array
-* Eigen Docs: https://web.archive.org/web/20231010014108/http://eigen.tuxfamily.org/index.php?title=Main_Page#Documentation
-* Can a dynamic eigen matrix be converted into fixed size matrix and then can cuda work?
-* How does passing 2D dynamic array passing work when we flatten it and pass http://www.trevorsimonton.com/blog/2016/11/16/transfer-2d-array-memory-to-cuda.html
-* Plus there are warnings on Eigen side, a lot of warnings!!!
+To Do:
+- [ ] What is dynamic and fixed type array
+- [ ] Eigen Docs: https://web.archive.org/web/20231010014108/http://eigen.tuxfamily.org/index.php?title=Main_Page#Documentation
+- [ ] Can a dynamic eigen matrix be converted into fixed size matrix and then can cuda work?
+- [ ] How does passing 2D dynamic array passing work when we flatten it and pass http://www.trevorsimonton.com/blog/2016/11/16/transfer-2d-array-memory-to-cuda.html
+- [ ] Plus there are warnings on Eigen side, a lot of warnings!!!
+- [ ] size of allocated memmory understanding based on 4 vs X code
+
