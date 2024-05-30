@@ -3,6 +3,7 @@
 
 // include cuda related which gives us API for tranferiing data
 #include <cuda_runtime.h>
+// including predefined variabled
 #include <device_launch_parameters.h>
 
 
