@@ -1,6 +1,7 @@
 # Intro to Data Parallelism and CUDA C
 
 ### What is `CUDA C`?
+    Compute Unified Device Architecture(CUDA)
 
 ### Terminologies
 * Device refers to the GPU
@@ -78,10 +79,46 @@
 
 ### Notes related to implemenating matrix addition on CUDA
 To Do:
-- [ ] What is dynamic and fixed type array
-- [ ] Eigen Docs: https://web.archive.org/web/20231010014108/http://eigen.tuxfamily.org/index.php?title=Main_Page#Documentation
-- [ ] Can a dynamic eigen matrix be converted into fixed size matrix and then can cuda work?
-- [ ] How does passing 2D dynamic array passing work when we flatten it and pass http://www.trevorsimonton.com/blog/2016/11/16/transfer-2d-array-memory-to-cuda.html
-- [ ] Plus there are warnings on Eigen side, a lot of warnings!!!
-- [ ] size of allocated memmory understanding based on 4 vs X code
+- [x] Difference in `Eigen::MatrixXd` and `Eigen::Matrix4d`:
+    - dynamic size unknow at compilation, would know at runtime
+    - The data allocated with `Eigen::MatrixXd` is allocated on heap(therefore not contagious necessarily).
+    - The data allocated with `Eigen::Matrix4d` is allocated on stack.
+    - Eigen predefined types are defined with: 
+    ```cpp
+    typedef Matrix<Scalar, RowsAtCompileTime, ColsAtCompileTime, Options> MyMatrixType
+    ```
+    - Examples:
+    ```cpp
+    Matrix<double, 6, Dynamic>                  // Dynamic number of columns (heap allocation)
+    Matrix<double, Dynamic, 2>                  // Dynamic number of rows (heap allocation)
+    Matrix<double, Dynamic, Dynamic, RowMajor>  // Fully dynamic, row major (heap allocation)
+    Matrix<double, 13, 3>                       // Fully fixed (usually allocated on stack)
+    ```
+    - Therefore, since the memory allocated are not contagious locations. It creates a problem while copying the data with `cudaMemcpy`
+    - [CONFIRM] We need the memory to be contiguous in order to use the CUDA API for `cudaMemcpy` and `cudaMemcpy2D`
 
+- [x] Eigen Docs: https://web.archive.org/web/20231010014108/http://eigen.tuxfamily.org/index.php?title=Main_Page#Documentation
+- [ ] Can a dynamic eigen matrix be converted into fixed size matrix and then can cuda work?
+    - For now, no
+    - In case you want to, look at: http://www.trevorsimonton.com/blog/2016/11/16/transfer-2d-array-memory-to-cuda.html
+- [ ] Plus there are warnings from Eigen when you compile with CMake !!!
+- [ ] Debugging the examples where `Eigen::Matrix4f` working but not `Eigen::MatrixXf`:
+    - [ ] We figured through following sources that maybe it is possible that `cudaMemcpy` and `cudaMemCcpy2D` might need contagious memory locations, but not sure, will confirm
+    - Further when I use `Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>`, which ensure storage via storage options of Eigen that the data is stored by row(which I think would be contgious [link](https://web.archive.org/web/20230522013531/https://eigen.tuxfamily.org/dox/group__TopicStorageOrders.html)), it sill doesnt work?
+    - Does it also require stack memory? This cant be true
+    - Referring to `darknet` repo, all the tensors are passed via `float*` pointer types
+    - Some other links:
+        * https://stackoverflow.com/questions/55966046/is-an-eigen-matrix-created-automatically-on-the-heap/55966077#55966077
+        * https://stackoverflow.com/questions/22932260/eigen-library-memory-usage-for-dynamic-vectors
+        * https://stackoverflow.com/questions/33347751/dynamic-arrays-vs-variable-length-arrays#:~:text=It%20depends%20on%20the%20language,have%20a%20runtime%2Ddetermined%20length.
+        * https://unstop.com/blog/difference-between-static-and-dynamic-memory-allocation
+        * https://forums.developer.nvidia.com/t/cudamallocpitch-and-cudamemcpy2d/38935/8
+        * https://stackoverflow.com/questions/33504943/2d-arrays-with-contiguous-rows-on-the-heap-memory-for-cudamemcpy2d
+        * https://stackoverflow.com/questions/6137218/how-can-i-add-up-two-2d-pitched-arrays-using-nested-for-loops
+        * https://stackoverflow.com/questions/24280220/in-cuda-why-cudamemcpy2d-and-cudamallocpitch-consume-a-lot-of-time
+        * https://forums.developer.nvidia.com/t/cudamallocpitch-and-cudamemcpy2d/38935
+        * https://stevengong.co/notes/CUDA-Memory-Allocation
+        * https://github.com/NVIDIA/cuda-samples/tree/master
+
+### Nvidia Tools:
+Nvidia Nsight and Compute[link](https://github.com/CisMine/Guide-NVIDIA-Tools)

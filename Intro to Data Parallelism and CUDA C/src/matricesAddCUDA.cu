@@ -7,11 +7,15 @@
 #include <cuda_runtime.h>
 #include <device_launch_parameters.h>
 
+// typedef Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> MatrixXTf;
+#define MatrixXTf Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>
+
+
 // matricesAdd kernel function for device
 __global__
-void matricesAddKernel(Eigen::MatrixXf *A,
-                        Eigen::MatrixXf *B,
-                        Eigen::MatrixXf *C,
+void matricesAddKernel(MatrixXTf *A,
+                        MatrixXTf *B,
+                        MatrixXTf *C,
                         int n)
 {
     // printf("kernel\n");
@@ -71,9 +75,9 @@ void printCudaError(cudaError_t &err)
 //                 std::unique_ptr<Eigen::MatrixXf> &C,
 //                 int n)
 
-void matricesAdd(Eigen::MatrixXf *A,
-                Eigen::MatrixXf *B,
-                Eigen::MatrixXf *C,
+void matricesAdd(MatrixXTf *A,
+                MatrixXTf *B,
+                MatrixXTf *C,
                 int n)
 {
     int size = n * n * sizeof(float);
@@ -84,25 +88,25 @@ void matricesAdd(Eigen::MatrixXf *A,
     // float *B_data = B->data();
     // float *C_data = C->data();
 
-    Eigen::MatrixXf *d_A, *d_B, *d_C;
+    MatrixXTf *d_A, *d_B, *d_C;
     // float *d_A, *d_B, *d_C;
 
-    cudaError_t errorAllocateA = cudaMalloc((void**)&d_A, sizeof(A));
+    cudaError_t errorAllocateA = cudaMalloc((void**)&d_A, sizeof(*A));
     // cudaError_t errorAllocateA = cudaMalloc((void**)&d_A, sizeof(A_data));
     printCudaError(errorAllocateA);
-    cudaError_t errorAllocateB = cudaMalloc((void**)&d_B, sizeof(B));
+    cudaError_t errorAllocateB = cudaMalloc((void**)&d_B, sizeof(*B));
     // cudaError_t errorAllocateB = cudaMalloc((void**)&d_B, sizeof(B_data));
     printCudaError(errorAllocateB);
-    cudaError_t errorAllocateC = cudaMalloc((void**)&d_C, sizeof(C));
+    cudaError_t errorAllocateC = cudaMalloc((void**)&d_C, sizeof(*C));
     // cudaError_t errorAllocateC = cudaMalloc((void**)&d_C, sizeof(C_data));
     printCudaError(errorAllocateC);
 
-    cudaError_t errorCpyA = cudaMemcpy(d_A, A, sizeof(A), cudaMemcpyHostToDevice);
+    cudaError_t errorCpyA = cudaMemcpy(d_A, A, sizeof(*A), cudaMemcpyHostToDevice);
     // cudaError_t errorCpyA = cudaMemcpy(d_A, A_data, sizeof(A_data), cudaMemcpyHostToDevice);
     printCudaError(errorCpyA);
     printf("A[%d, %d] = %f \n", 0, 0, (*A)(0, 0));
     // printf("dA[%d, %d] = %f, ", 0, 0, d_A->coeff(0, 0));
-    cudaError_t errorCpyB = cudaMemcpy(d_B, B, sizeof(B), cudaMemcpyHostToDevice);
+    cudaError_t errorCpyB = cudaMemcpy(d_B, B, sizeof(*B), cudaMemcpyHostToDevice);
     // cudaError_t errorCpyB = cudaMemcpy(d_B, B_data, sizeof(B_data), cudaMemcpyHostToDevice);
     printCudaError(errorCpyB);
 
@@ -123,14 +127,19 @@ int main()
     int n = 6;
     std::cout << "n: " << n << std::endl;
     std::cout <<"sizeof float: " << sizeof(float) << std::endl;
+    
 
     // std::unique_ptr<Eigen::MatrixXf> input_matrix_1 = std::make_unique<Eigen::MatrixXf>(Eigen::MatrixXf::Random(n, n));
     // std::unique_ptr<Eigen::MatrixXf> input_matrix_2 = std::make_unique<Eigen::MatrixXf>(Eigen::MatrixXf::Random(n, n));
     // std::unique_ptr<Eigen::MatrixXf> output_matrix = std::make_unique<Eigen::MatrixXf>(Eigen::MatrixXf::Zero(n, n));
+    MatrixXTf in1 = Eigen::MatrixXf::Random(n, n);
+    MatrixXTf in2 = Eigen::MatrixXf::Random(n, n);
+    MatrixXTf out = Eigen::MatrixXf::Zero(n, n);
 
-    Eigen::MatrixXf *input_matrix_1 = new Eigen::MatrixXf(Eigen::MatrixXf::Random(n, n));
-    Eigen::MatrixXf *input_matrix_2 = new Eigen::MatrixXf(Eigen::MatrixXf::Random(n, n));
-    Eigen::MatrixXf *output_matrix = new Eigen::MatrixXf(Eigen::MatrixXf::Zero(n, n));
+
+    MatrixXTf *input_matrix_1 = &in1;
+    MatrixXTf *input_matrix_2 = &in2;
+    MatrixXTf *output_matrix = &out;
 
 
     std::cout << "size of input matrix 1: " << sizeof(input_matrix_1) << std::endl;
